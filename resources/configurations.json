@@ -1,0 +1,30 @@
+{
+    "config": {
+        "server": {
+            "addr": "0.0.0.0",
+            "port": 8000
+        },
+        "directories": [
+            "./restapi-with-drogon/",
+            "./restapi-with-drogon/database/"
+        ],
+        "database": {
+            "path": "./restapi-with-drogon/database/database.sqlite"
+        },
+        "migrations": {
+            "user": [
+                {
+                    "name": "Joao",
+                    "nickname": "Sitole",
+                    "email": "joao.sitole@gmail.com",
+                    "password": "ababab"
+                }
+            ],
+            "api-token": [
+                {
+                    "token": "19198hs98hs9hs9h91h89h9hz"
+                }
+            ]
+        }
+    }
+}
