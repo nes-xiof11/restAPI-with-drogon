@@ -1,4 +1,5 @@
 #include "hash.hpp"
+#include "../../lib/SHA256.hpp"
 
 namespace util 
 {
