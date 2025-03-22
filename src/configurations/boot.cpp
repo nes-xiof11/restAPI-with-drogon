@@ -33,6 +33,7 @@ namespace configuration
             LOG(INFO) << "access api at http://" << addr << ":" << port;
             app()
                 .addListener(addr, port)
+                .enableSession(300) // 5 minutes
                 .run();
         } catch (const std::exception& e) {
             LOG(FATAL) << e.what();
@@ -49,5 +50,5 @@ namespace configuration
         LOG(INFO) << "stoping api";
     } catch (const std::exception &e) {
         LOG(FATAL) << e.what();
-    }
+    } 
 }
