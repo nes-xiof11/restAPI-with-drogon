@@ -44,6 +44,7 @@ namespace v1
                 response->setStatusCode(HttpStatusCode::k201Created);
                 body = model::user::to_json(created_user);
             } else {
+                body["message"] = "Pode ser que o usuario ja exista";
                 response->setStatusCode(HttpStatusCode::k500InternalServerError);
             }
 
