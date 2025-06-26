@@ -8,16 +8,12 @@ namespace api
 {
     void api_secure_session_filter::doFilter(const HttpRequestPtr& req, FilterCallback&& fcb, FilterChainCallback &&fccb)
     {
-
-        if (req->session()->getOptional<bool>("is_verified").has_value())
-        {
-            if (req->session()->getOptional<bool>("is_verified").value())
-            {
+        if (auto & session = req->getSession()) {
+            if (*session->getOptional<bool>("is_verified")) {
                 fccb();
                 return;
             }
         }
-        
         fcb(HttpResponse::newHttpResponse(HttpStatusCode::k401Unauthorized, ContentType::CT_NONE));
     }
 }
