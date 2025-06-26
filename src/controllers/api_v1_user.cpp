@@ -5,8 +5,8 @@
 #include "drogon/HttpResponse.h"
 #include "drogon/HttpTypes.h"
 #include "json/value.h"
+#include <cstdlib>
 #include <functional>
-#include <tuple>
 
 namespace api 
 {
@@ -23,105 +23,68 @@ namespace v1
     {
         auto response = HttpResponse::newHttpResponse();
         auto body = Json::Value();
-        if (auto message = req->getJsonObject())
+        if (auto & body = req->getJsonObject())
         {
-            const auto [name, nickname, email, password] = std::make_tuple(
-                (*message)["name"].asString(),
-                (*message)["nickname"].asString(),
-                (*message)["email"].asString(),
-                (*message)["password"].asString()
-            );
-
-            model::user created_user = {
-                .name = name,
-                .nickname = nickname,
-                .email = email,
-                .password = password
-            };
-
+            model::user created_user = model::user::from_json(*body);
             if ((created_user.id = get_service().create(created_user)) != -1) 
             {
-                response->setStatusCode(HttpStatusCode::k201Created);
-                body = model::user::to_json(created_user);
+                response->setStatusCode(HttpStatusCode::k200OK);
+                response->newHttpJsonResponse(model::user::to_json(created_user));
             } else {
-                body["message"] = "Pode ser que o usuario ja exista";
-                response->setStatusCode(HttpStatusCode::k500InternalServerError);
+                response->setStatusCode(HttpStatusCode::k400BadRequest);
             }
-
-            response->setBody(body.toStyledString());
             return callback(response);
         }
 
-        response->setStatusCode(HttpStatusCode::k400BadRequest);
+        response->setStatusCode(HttpStatusCode::k406NotAcceptable);
         callback(response);
     }
 
     void user::single(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr&)> &&callback, long user_id)
     {
-        auto response = HttpResponse::newHttpResponse();
-        auto body = Json::Value();
-        auto user = get_service().get_by_id(user_id);
-
-        if (user.has_value())
+        if (const auto & user = get_service().get_by_id(user_id))
         {
-            body = model::user::to_json(user.value().front());
-        }
-        response->setBody(body.toStyledString());
-        response->setStatusCode(HttpStatusCode::k200OK);
-        return callback(response);
+            callback(HttpResponse::newHttpJsonResponse(model::user::to_json(user.value())));
+            return;
+        } else
+            callback(HttpResponse::newHttpResponse(HttpStatusCode::k404NotFound, ContentType::CT_NONE));
     }
 
     void user::list(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr&)> &&callback)
     {
-        auto response = HttpResponse::newHttpResponse();
-        auto body = Json::Value();
-        auto users = get_service().get_all();
-        if (users.has_value())
+        const int & offset = std::atoi(req->getParameter("offset").c_str());
+        int limit = std::atoi(req->getParameter("limit").c_str());
+        limit = (limit < 0) ? 10 : limit;
+        
+        Json::Value items;
+        items["items"] = "";
+        if (const auto & users = get_service().get_all(0, limit))
         {
-            for (const auto& user: users.value())
+            for (auto & user : users.value())
             {
-                body.append(model::user::to_json(user));
+                items["items"].append(model::user::to_json(user));
             }
-        }
-
-        response->setBody(body.toStyledString());
-        response->setStatusCode(HttpStatusCode::k200OK);
-        return callback(response);
+            return callback(HttpResponse::newHttpJsonResponse(items));
+        } else      
+            return callback(HttpResponse::newHttpResponse(HttpStatusCode::k404NotFound, ContentType::CT_NONE));
     }
 
     void user::update(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr&)> &&callback, long user_id)
     {
-        auto response = HttpResponse::newHttpResponse();
-        auto body = Json::Value();
-        if (auto message = req->getJsonObject())
+        if (auto & body = req->getJsonObject())
         {
-            const auto [name, nickname, email, password] = std::make_tuple(
-                (*message)["name"].asString(),
-                (*message)["nickname"].asString(),
-                (*message)["email"].asString(),
-                (*message)["password"].asString()
-            );
-
-            auto updated_user = model::user{
-                .id = user_id,
-                .name = name,
-                .nickname = nickname,
-                .email = email,
-                .password = password
-            };
+            auto updated_user = model::user::from_json(*body);
 
             if (get_service().update(updated_user))
             {
-                body = model::user::to_json(updated_user);
-                response->setStatusCode(HttpStatusCode::k202Accepted);
-            } else {
-                response->setStatusCode(HttpStatusCode::k500InternalServerError);
+                return callback(HttpResponse::newHttpJsonResponse(model::user::to_json(updated_user)));
+            } 
+            else 
+            {
+                return callback(HttpResponse::newHttpResponse(HttpStatusCode::k400BadRequest, ContentType::CT_NONE));
             }
-            response->setBody(body.toStyledString());
-            return callback(response);
         }
-        response->setStatusCode(HttpStatusCode::k400BadRequest);
-        callback(response);
+        return callback(HttpResponse::newHttpResponse(HttpStatusCode::k406NotAcceptable, ContentType::CT_NONE));
     }
 
     void user::remove(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr&)> &&callback, long user_id)
@@ -129,7 +92,7 @@ namespace v1
         return callback(
             (get_service().remove_by_id(user_id))
             ? HttpResponse::newHttpResponse(HttpStatusCode::k200OK, ContentType::CT_NONE)
-            : HttpResponse::newHttpResponse(HttpStatusCode::k500InternalServerError, ContentType::CT_NONE)
+            : HttpResponse::newHttpResponse(HttpStatusCode::k404NotFound, ContentType::CT_NONE)
         );
     }
 }
