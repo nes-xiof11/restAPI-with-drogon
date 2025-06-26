@@ -13,10 +13,11 @@ add_requires(
 
 target("restapi-drogon")
     set_kind("binary")
-    set_languages("c++23")
+    set_languages("c++26")
     add_files(
         "src/*.cpp",
-        "src/*/*.cpp"
+        "src/*/*.cpp",
+        "lib/*.cpp"
     )
     add_packages(
         "drogon",

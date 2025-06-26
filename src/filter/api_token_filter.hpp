@@ -7,10 +7,10 @@ using namespace drogon;
 
 namespace api 
 {
-    class api_token_filter: public HttpFilter<api_token_filter>
+    class api_token_filter final: public HttpFilter<api_token_filter>
     {
         auto get_service();
         public:
-            void doFilter(const HttpRequestPtr& req, FilterCallback&& fcb, FilterChainCallback&& fccb);
+            void doFilter(const HttpRequestPtr& req, FilterCallback&& fcb, FilterChainCallback&& fccb) override;
     };
 }

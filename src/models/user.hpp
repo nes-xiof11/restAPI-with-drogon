@@ -14,6 +14,7 @@ namespace model
                     nickname,
                     email,
                     password;
+        std::string role;
         std::string created_at,
                     updated_at;
 
@@ -25,6 +26,7 @@ namespace model
             json["nickname"] = sub.nickname;
             json["email"] = sub.email;
             json["password"] = sub.password;
+            json["role"] = sub.role;
             json["created_at"] = sub.created_at;
             json["updated_at"] = sub.updated_at;
             return json;
@@ -38,6 +40,7 @@ namespace model
             sub.nickname = json["nickname"].asString();
             sub.email = json["email"].asString();
             sub.password = json["password"].asString();
+            sub.role = json["role"].asString();
             sub.created_at = json["created_at"].asString();
             sub.updated_at = json["updated_at"].asString();
             return sub;
@@ -53,6 +56,7 @@ namespace model
                 make_column("nickname", &model::user::nickname),
                 make_column("email", &model::user::email, unique()),
                 make_column("password", &model::user::password),
+                make_column("role", &model::user::role),
                 make_column("created_at", &model::user::created_at),
                 make_column("updated_at", &model::user::updated_at)
             );

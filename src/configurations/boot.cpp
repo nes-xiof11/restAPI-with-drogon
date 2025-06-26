@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <glog/logging.h>
 #include <drogon/drogon.h>
-#include "../migrations/migratios.hpp"
+#include "../migrations/migration.hpp"
 
 Json::Value config;
 
@@ -15,7 +15,8 @@ namespace configuration
     void setup_directories(const Json::Value &config)
     {
         LOG(INFO) << __FUNCTION__;
-        for (const auto& dir: config) {
+        for (const auto& dir: config) 
+        {
             if (not std::filesystem::create_directories(dir.asString())) 
             {
                 LOG(WARNING) << dir << " not created";
@@ -29,11 +30,11 @@ namespace configuration
         try {
             using namespace drogon;
             const auto addr = config["addr"].asString();
-            const auto port = std::atoi(config["port"].asString().c_str()); 
+            const auto port = config["port"].asInt();//std::atoi(config["port"].asString().c_str());
             LOG(INFO) << "access api at http://" << addr << ":" << port;
             app()
                 .addListener(addr, port)
-                .enableSession(300) // 5 minutes
+                // .enableSession(300) // 5 minutes
                 .run();
         } catch (const std::exception& e) {
             LOG(FATAL) << e.what();
@@ -43,12 +44,17 @@ namespace configuration
     void boot() try
     {   
         load_config(config);
+
         setup_directories(config["directories"]);
+
         migration::migrate(config["migrations"]);
+
         LOG(INFO) << "starting api";
+
         setup_server(config["server"]);
+
         LOG(INFO) << "stoping api";
-    } catch (const std::exception &e) {
+    } catch (const std::exception & e) {
         LOG(FATAL) << e.what();
     } 
 }

@@ -11,7 +11,7 @@
 namespace service 
 {   
     template <typename Storage, typename Model>
-    class crud 
+    class crud
     {
         protected:
             Storage &storage;
@@ -50,7 +50,7 @@ namespace service
                 return false;
             }
 
-            virtual bool remove_by_id(long id)
+            virtual bool remove_by_id(const long & id)
             {
                 try {
                     using namespace sqlite_orm;
@@ -61,21 +61,24 @@ namespace service
                 } return false;
             }
 
-            virtual std::optional<std::vector<Model>> get_all()
+            virtual std::optional<std::vector<Model>> get_all(const int & offset, const int & limit = 10)
             {
-                auto all = storage.template get_all<Model>();
+                using namespace sqlite_orm;
+                auto all = storage.template get_all<Model>(
+                    sqlite_orm::limit(limit, sqlite_orm::offset(offset))
+                );
                 if (all.empty())
                     return std::nullopt;
                 return all;
             }
 
-            virtual std::optional<std::vector<Model>> get_by_id(long id)
+            virtual std::optional<Model> get_by_id(long id)
             {
                 using namespace sqlite_orm;
-                auto model = storage.template get_all<Model>(where(c(&Model::id) == id));
-                if (model.empty())
+                auto users = storage.template get_all<Model>(where(c(&Model::id) == id));
+                if (users.empty())
                     return std::nullopt;
-                return model;
+                return users.front();
             }
     };
 

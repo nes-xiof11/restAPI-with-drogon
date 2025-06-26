@@ -12,7 +12,6 @@ namespace api
 {
 namespace v1 
 {
-
     auto api_v1_login::get_user_service()
     {
         static auto storage = model::get_storage();
@@ -23,20 +22,20 @@ namespace v1
     void api_v1_login::asyncHandleHttpRequest(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr&)> &&callback)
     {
         auto response = HttpResponse::newHttpResponse();
-        auto body = Json::Value();
-        if (auto message = req->getJsonObject())
+        if (auto & body = req->getJsonObject())
         {
-            auto [email, password] = std::make_tuple(
-                (*message)["email"].asString(),
-                (*message)["password"].asString()
+            const auto & [email, password] = std::make_tuple(
+                (*body)["email"].asString(),
+                (*body)["password"].asString()
             );
 
             if (get_user_service().is_valide(email, password))
             {
-                response->setStatusCode(HttpStatusCode::k202Accepted);
-                req->session()->insert("is_verified", true);
-                req->session()->insert("user_email", email);
-                
+                if (req->getSession()) {
+                    req->session()->insert("is_verified", true);
+                    req->session()->insert("user_email", email);
+                    response->setStatusCode(HttpStatusCode::k200OK);
+                }
             } else {
                 response->setStatusCode(HttpStatusCode::k401Unauthorized);
             }
@@ -44,7 +43,7 @@ namespace v1
             callback(response);
             return;
         }
-        response->setStatusCode(HttpStatusCode::k400BadRequest);
+        response->setStatusCode(HttpStatusCode::k406NotAcceptable);
         callback(response);
     }
 }
