@@ -1,3 +1,0 @@
-/home/eloide-novela/Documentos/work/mine/restAPI-with-drogon/build1/CMakeFiles/restapi-drogon.dir
-/home/eloide-novela/Documentos/work/mine/restAPI-with-drogon/build1/CMakeFiles/edit_cache.dir
-/home/eloide-novela/Documentos/work/mine/restAPI-with-drogon/build1/CMakeFiles/rebuild_cache.dir
