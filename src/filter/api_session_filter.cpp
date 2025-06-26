@@ -1,4 +1,4 @@
-#include "api_secure_session_filter.hpp"
+#include "api_session_filter.hpp"
 #include "drogon/HttpRequest.h"
 #include "drogon/HttpResponse.h"
 #include "drogon/HttpTypes.h"
@@ -6,7 +6,7 @@
 
 namespace api 
 {
-    void api_secure_session_filter::doFilter(const HttpRequestPtr& req, FilterCallback&& fcb, FilterChainCallback &&fccb)
+    void api_session_filter::doFilter(const HttpRequestPtr& req, FilterCallback&& fcb, FilterChainCallback &&fccb)
     {
         if (auto & session = req->getSession()) {
             if (*session->getOptional<bool>("is_verified")) {

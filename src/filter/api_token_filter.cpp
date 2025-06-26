@@ -5,8 +5,7 @@
 #include "drogon/HttpResponse.h"
 #include "drogon/HttpTypes.h"
 
-// extern Json::Value 
-namespace api 
+namespace api
 {
     auto api_token_filter::get_service()
     {
@@ -18,11 +17,14 @@ namespace api
     void api_token_filter::doFilter(const HttpRequestPtr& req, FilterCallback&& fcb, FilterChainCallback &&fccb)
     {
         auto token = req->getHeader("api-token");
-        if (not get_service().validate(token))
+
+        if (get_service().validate(token))
         {
-            fcb(HttpResponse::newHttpResponse(HttpStatusCode::k401Unauthorized, ContentType::CT_NONE));
+            //Passed
+            fccb();
             return;
-        } 
-        fccb();
+        }
+        //Check failed
+        fcb(HttpResponse::newHttpResponse(HttpStatusCode::k401Unauthorized, ContentType::CT_NONE));
     }
 }
