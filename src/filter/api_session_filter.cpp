@@ -9,7 +9,7 @@ namespace api
     void api_session_filter::doFilter(const HttpRequestPtr& req, FilterCallback&& fcb, FilterChainCallback &&fccb)
     {
         if (auto & session = req->getSession()) {
-            if (*session->getOptional<bool>("is_verified")) {
+            if (session->get<bool>("is_verified")) {
                 fccb();
                 return;
             }

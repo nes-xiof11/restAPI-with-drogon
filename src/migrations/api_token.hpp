@@ -3,6 +3,8 @@
 #include "json/value.h"
 #include "../service/api_token.hpp"
 
+std::unordered_map<std::string, bool> tokens;
+
 namespace migration 
 {
 namespace api_token 
@@ -17,6 +19,10 @@ namespace api_token
             if (service.create(created_api_token) == (-1))
                 LOG(WARNING) << "api-token was not created";
         }
+
+        auto all = service.get_all(0);
+        for (const auto &api_token: *all)
+            tokens[api_token.token] = true;
     }
 }
 }
