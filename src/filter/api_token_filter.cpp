@@ -5,6 +5,8 @@
 #include "drogon/HttpResponse.h"
 #include "drogon/HttpTypes.h"
 
+extern std::unordered_map<std::string, bool> tokens;
+
 namespace api
 {
     auto api_token_filter::get_service()
@@ -17,8 +19,13 @@ namespace api
     void api_token_filter::doFilter(const HttpRequestPtr& req, FilterCallback&& fcb, FilterChainCallback &&fccb)
     {
         auto token = req->getHeader("api-token");
+        bool is_authorized = false;
+        if (not tokens.empty() && tokens[token])
+            is_authorized = true;
+        else if (get_service().validate(token))
+            is_authorized = true;
 
-        if (get_service().validate(token))
+        if (is_authorized)
         {
             //Passed
             fccb();
