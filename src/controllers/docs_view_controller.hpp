@@ -4,7 +4,7 @@
 
 using namespace drogon;
 
-class docs_view_controller : public drogon::HttpSimpleController<docs_view_controller>
+class docs_view_controller final : public drogon::HttpSimpleController<docs_view_controller>
 {
   public:
     void asyncHandleHttpRequest(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback) override;

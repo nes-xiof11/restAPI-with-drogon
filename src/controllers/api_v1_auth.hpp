@@ -12,8 +12,7 @@ namespace api
 {
 namespace v1 
 {
-
-    class api_v1_login: public HttpSimpleController<api_v1_login>
+    class api_v1_login final : public HttpSimpleController<api_v1_login>
     {
         auto get_user_service();
         public:
@@ -21,7 +20,7 @@ namespace v1
             PATH_ADD("/api/v1/login/", "api::api_token_filter", Post, Get);
             PATH_LIST_END
             
-            void asyncHandleHttpRequest(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr&)> &&callback);
+            void asyncHandleHttpRequest(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr&)> &&callback) override;
     };
 }
 }

@@ -22,7 +22,7 @@ namespace v1
     void user::create(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr&)> &&callback)
     {
         auto response = HttpResponse::newHttpResponse();
-        auto body = Json::Value();
+        
         if (auto & body = req->getJsonObject())
         {
             model::user created_user = model::user::from_json(*body);
@@ -54,13 +54,13 @@ namespace v1
     {
         const int & offset = std::atoi(req->getParameter("offset").c_str());
         int limit = std::atoi(req->getParameter("limit").c_str());
-        limit = (limit < 0) ? 10 : limit;
+        limit = (limit <= 0) ? 10 : limit;
         
         Json::Value items;
-        items["items"] = "";
+        items["items"] = Json::Value(Json::arrayValue);
         if (const auto & users = get_service().get_all(0, limit))
         {
-            for (auto & user : users.value())
+            for (const auto & user : *users)
             {
                 items["items"].append(model::user::to_json(user));
             }
