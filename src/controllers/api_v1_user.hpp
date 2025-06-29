@@ -12,7 +12,7 @@ namespace api
 {
 namespace v1 
 {
-    class user: public HttpController<user>
+    class user final: public HttpController<user>
     {
         auto get_service();
         public:
