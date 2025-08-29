@@ -7,6 +7,7 @@
 #include <glog/logging.h>
 #include <drogon/drogon.h>
 #include "../migrations/migration.hpp"
+#include "../misc/seeder.hpp"
 
 Json::Value config;
 
@@ -30,11 +31,11 @@ namespace configuration
         try {
             using namespace drogon;
             const auto addr = config["addr"].asString();
-            const auto port = config["port"].asInt();//std::atoi(config["port"].asString().c_str());
+            const auto port = config["port"].asInt();
             LOG(INFO) << "access api at http://" << addr << ":" << port;
             app()
                 .addListener(addr, port)
-                // .enableSession(300) // 5 minutes
+                .enableSession(300) // 5 minutes
                 .run();
         } catch (const std::exception& e) {
             LOG(FATAL) << e.what();
@@ -48,6 +49,7 @@ namespace configuration
         setup_directories(config["directories"]);
 
         migration::migrate(config["migrations"]);
+        misc::seeder(config["admin"]);
 
         LOG(INFO) << "starting api";
 
