@@ -35,8 +35,13 @@ namespace configuration
             LOG(INFO) << "access api at http://" << addr << ":" << port;
             app()
                 .addListener(addr, port)
+                // .setSSLFiles(
+                //     "/etc/ssl/localcerts/localhost.crt", 
+                //     "/etc/ssl/localcerts/localhost.key"
+                // )
+                .enableServerHeader(false)
                 .enableSession(300) // 5 minutes
-                .run();
+            .run();
         } catch (const std::exception& e) {
             LOG(FATAL) << e.what();
         }
